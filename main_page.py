@@ -1,12 +1,70 @@
-import tkinter as tk
 from  tkinter import *
 from  tkinter import messagebox
 from PIL import ImageTk,Image
 import mysql.connector
+import datetime
 
+
+def first():
+    def login():
+        us = user.get()
+        ps = pswd.get()
+        conn = mysql.connector.connect(host='localhost', user='root', password='password', db='data')
+        a = conn.cursor()
+        a.execute("select * from login where username='" + us + "' and password = '" + ps + "'")
+        results = a.fetchall()
+        if len(results) > 0:
+            win.destroy()
+            open_main()
+        else:
+            messagebox.showinfo("message","Wrong username or password")
+        conn.close()
+
+    global win  
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
+
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i8.png')
+    render = ImageTk.PhotoImage(load)
+    img = Label(win, image=render)
+    img.image = render
+    img.place(x=0, y=0)
+
+    #top frame
+    topframe=Frame(win,width=1800,height=900,bg="pink",bd=10,relief="raise")
+    topframe.pack(side=TOP)
+    lb=Label(topframe,font=('arial',45,'bold'),fg="pink",bg="brown",text='LIBRARY MANAGEMENT SYSTEM', width=30)
+    lb.grid(row=0,column=0)
+
+    #middle frame
+    mframe=Frame(win,bg="brown",bd=10,relief='raise', padx=30, pady=100)
+    mframe.pack(padx=500,pady=40)
+
+    lbl1 = Label(mframe, text='User name',font=('arial',12,'bold'),fg="pink",bg="brown")
+    lbl1.grid(row=0, column=0,pady=10)
+    user=StringVar()
+    e1 = Entry(mframe,textvariable = user)
+    e1.grid(row=0, column=1, padx=10)
+
+    lbl2 = Label(mframe, text='Password',font=('arial',12,'bold'),fg="pink",bg="brown")
+    lbl2.grid(row=1, column=0, pady=10)
+    pswd=StringVar()
+    e2 = Entry(mframe,textvariable = pswd)
+    e2.grid(row=1, column=1, padx=10)
+
+    closemain = Button(mframe, font=('arial',12,'bold'), bg='brown',text='Close Main',fg="pink",command=win.destroy)
+    closemain.grid(row=2, column=0, padx=10)
+
+    e3 = Button(mframe, text='Log in', font=('arial',12,'bold'),fg="pink",bg="brown",command=login)
+    e3.grid(row=2, column=1, padx=10)
+
+    win.mainloop()
 
 def open_return():
-    win.destroy()
     def return_():
         bknm = bknum.get()
         try:
@@ -28,22 +86,18 @@ def open_return():
             # print('not delete')
             messagebox.showinfo("message","not delete")
         conn.close()
-    global win1    
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
-
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i1.png')
+    global win    
+    win=Tk()
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i1.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
 
     #middle frame
-    mframe=Frame(win1,width=800,height=800,bg="brown",bd=10,relief='raise', padx=40, pady=30)
+    mframe=Frame(win,width=800,height=800,bg="brown",bd=10,relief='raise', padx=40, pady=30)
     mframe.pack(padx=50,pady=70)
 
     lbl1 = Label(mframe, font=('arial',14,'bold'), bg="brown", text='Book Number :')
@@ -54,7 +108,7 @@ def open_return():
 
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=3, column=0, padx=10)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=3, column=2, padx=10)
 
 
@@ -62,23 +116,23 @@ def open_return():
     e3.grid(row=3, column=1, pady=10)
 
 
-    win1.mainloop()
+    win.mainloop()
 
 def open_issue():
     win.destroy()
     def issue_book():
         rollnum = rnum.get()
-        #bkname=booknm.get()
         bknum=booknum.get()
         datofiss=dateofiss.get()
         lastdateret=lstdate.get()
-        print(type(rollnum))
+
         if(rollnum!='' or bknum!='' or datofiss!='' or lastdateret!=''):
             try:
                 conn = mysql.connector.connect(host='localhost', user='root', password='password', db='data')
                 a = conn.cursor()
-                #a.execute("insert into issuebook(rollno,bookname,bookno,issuedate,returndate)values('"+rollnum+"','"+bkname+"','"+bknum+"','"+datofiss+"','"+lastdateret+"')")
-                a.execute("insert into issuebook(rollno,bookno,issuedate,returndate)values('"+rollnum+"','"+bknum+"','"+datofiss+"','"+lastdateret+"')")
+                a.execute("insert into issuebook(rollno,bookno,issuedate,returndate)values('"
+                    +rollnum+"','"+bknum+"','"+datofiss+"','"+lastdateret+"')")
+
                 a.execute("SELECT * FROM books where bookno='"+bknum+"'")
                 booknm.set(row[0])
                 bkname=booknm.get()
@@ -93,22 +147,22 @@ def open_issue():
                 conn.close()
         else:
             messagebox.showinfo("message", "Please Enter Some values")
-    global win1
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i2.png')
+    global win
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i2.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
 
 
     #middle frame
-    mframe=Frame(win1,width=800,height=800,bg="brown",bd=10,relief='raise', padx=50, pady=30)
+    mframe=Frame(win,width=800,height=800,bg="brown",bd=10,relief='raise', padx=50, pady=30)
     mframe.pack(padx=50,pady=100)
 
     lbl1 = Label(mframe, font=('arial',14,'bold'), bg="brown", text='Roll Number :')
@@ -143,14 +197,14 @@ def open_issue():
 
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=5, column=0, padx=10)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=5, column=2, padx=10)
 
     e6 = Button(mframe, text='Submit', font=('arial',14,'bold'), bg="brown",command=issue_book)
     e6.grid(row=5, column=1, pady=10)
 
 
-    win1.mainloop()
+    win.mainloop()
 
     
 def open_details():
@@ -204,25 +258,25 @@ def open_details():
     def details_and_bookdetails():
         details()
         bookdetails()
-    global win1
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i3.png')
+    global win
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i3.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
     #top frame
-    topframe=Frame(win1,width=4600,height=3500,bg="pink",bd=10,relief="raise")
+    topframe=Frame(win,width=4600,height=3500,bg="pink",bd=10,relief="raise")
     topframe.pack(side=TOP)
     lb=Label(topframe,font=('arial',30,'bold'),fg="pink",bg="brown",text='Students Detail', width=40)
     lb.grid(row=0,column=0)
 
-    rframe=Frame(win1,bg="brown",bd=10,relief='raise', padx=10, pady=10)
+    rframe=Frame(win,bg="brown",bd=10,relief='raise', padx=10, pady=10)
     rframe.pack(padx=5,pady=5)
     labelroll = Label(rframe,font=('arial',14,'bold'), bg='brown', text='Enter Roll Number :')
     labelroll.grid(row=0, column=0)
@@ -234,7 +288,7 @@ def open_details():
     roll3.grid(row=0, column=2, pady=10)
     #middle frame
 
-    mframe=Frame(win1,bg="brown",bd=10,relief='raise', padx=20, pady=10)
+    mframe=Frame(win,bg="brown",bd=10,relief='raise', padx=20, pady=10)
     mframe.pack(padx=5,pady=10)
     lbl1 = Label(mframe,font=('arial',14,'bold'), bg='brown', text='Roll Number :')
     lbl1.grid(row=1, column=0)
@@ -274,7 +328,7 @@ def open_details():
     e6 = Entry(mframe,textvariable=bran)
     e6.grid(row=6, column=1, padx=10)
 
-    sideframe=Frame(win1,bg="brown",bd=10,relief='raise', padx=20, pady=10)
+    sideframe=Frame(win,bg="brown",bd=10,relief='raise', padx=20, pady=10)
     sideframe.pack(padx=5,pady=10)
     lbs1 = Label(mframe, font=('arial',14,'bold'), bg="brown", text='Book Name :')
     lbs1.grid(row=7, column=0, pady=10)
@@ -300,14 +354,14 @@ def open_details():
     s4 = Entry(mframe,textvariable=lstdate)
     s4.grid(row=8, column=3, padx=10)
 
-    mframe=Frame(win1,bg="brown",bd=10,relief='raise', padx=50, pady=30)
+    mframe=Frame(win,bg="brown",bd=10,relief='raise', padx=50, pady=30)
     mframe.pack(padx=50,pady=20)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=2, column=1, padx=10)
 
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=2, column=0, padx=10)
-    win1.mainloop()
+    win.mainloop()
 
     
 def open_delete():
@@ -337,23 +391,23 @@ def open_delete():
             messagebox.showinfo("message","Error")
         conn.close()
         
-    global win1
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
+    global win
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
 
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i4.png')
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i4.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
 
 
     #middle frame
-    mframe=Frame(win1,width=800,height=800,bg="brown",bd=10,relief='raise', padx=40, pady=30)
+    mframe=Frame(win,width=800,height=800,bg="brown",bd=10,relief='raise', padx=40, pady=30)
     mframe.pack(padx=50,pady=20)
 
     lbl1 = Label(mframe, font=('arial',14,'bold'), bg='brown', text='Roll Number :')
@@ -364,12 +418,12 @@ def open_delete():
     
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=2, column=0, padx=10)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=2, column=2, padx=10)
     e3 = Button(mframe, text='Delete', font=('arial',14,'bold'),fg="pink",bg="brown",command=delete)
     e3.grid(row=2, column=1, pady=10)
     
-    win1.mainloop()
+    win.mainloop()
 
 def open_book():
     win.destroy()
@@ -387,22 +441,22 @@ def open_book():
             print('Not Save')
             conn.close()
             
-    global win1        
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
+    global win        
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
     
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i5.png')
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i5.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
 
     #middle frame
-    mframe=Frame(win1,width=800,height=800,bg="brown",bd=10,relief='raise', padx=80)
+    mframe=Frame(win,width=800,height=800,bg="brown",bd=10,relief='raise', padx=80)
     mframe.pack(padx=50,pady=200)
 
     lbl1 = Label(mframe, font=('arial',14,'bold'), bg='brown', text='Book Name :')
@@ -419,13 +473,13 @@ def open_book():
     
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=2, column=0, padx=10)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=2, column=2, padx=10)
 
     e3 = Button(mframe, text='Submit', font=('arial',14,'bold'),fg="white",bg="brown",command=add_book)
     e3.grid(row=2, column=1, pady=10)
 
-    win1.mainloop()
+    win.mainloop()
     
 def open_add():
     win.destroy()
@@ -456,21 +510,21 @@ def open_add():
             messagebox.showinfo("message","Error")
             conn.close()
 
-    global win1
-    win1=Tk()
-    win1.overrideredirect(True)
-    win1.overrideredirect(False)
-    win1.attributes('-fullscreen',False)
-    win1.title("windows application")
-    win1.configure(bg='gray')
-    load = Image.open('icon\i6.png')
+    global win
+    win=Tk()
+    win.overrideredirect(True)
+    win.overrideredirect(False)
+    win.attributes('-fullscreen',False)
+    win.title("windows application")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i6.png')
     render = ImageTk.PhotoImage(load)
-    img = Label(win1, image=render)
+    img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0)
 
     #middle frame
-    mframe=Frame(win1,bg="brown",bd=10,relief='raise', padx=50, pady=30)
+    mframe=Frame(win,bg="brown",bd=10,relief='raise', padx=50, pady=30)
     mframe.pack(padx=50,pady=50)
 
     lbl1 = Label(mframe,font=('arial',14,'bold'), bg='brown', text='Roll Number :')
@@ -513,18 +567,18 @@ def open_add():
 
     exitmain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='GO TO Main',fg="pink",command=open_main)
     exitmain.grid(row=6, column=0, padx=10)
-    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win1.destroy)
+    closemain = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Close',fg="pink",command=win.destroy)
     closemain.grid(row=6, column=2, padx=10)
 
 
     e3 = Button(mframe, font=('arial',14,'bold'), bg='brown',text='Add Student',fg="pink",command=add_student)
     e3.grid(row=6, column=1, padx=10)
 
-    win1.mainloop()
+    win.mainloop()
 
 def open_main():
     try:
-        win1.destroy()
+        win.destroy()
     except:
         pass
         
@@ -534,7 +588,7 @@ def open_main():
     win.overrideredirect(False)
     win.attributes('-fullscreen',False)
     win.title("windows application")
-    load = Image.open('icon\i7.png')
+    load = Image.open('icon\\i7.png')
     win.configure(bg='gray')
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
@@ -577,68 +631,6 @@ def open_main():
 
     win.mainloop()
     
-def first():
-    def login():
-        us = user.get()
-        ps = pswd.get()
-        conn = mysql.connector.connect(host='localhost', user='root', password='password', db='data')
-        a = conn.cursor()
-        a.execute("select * from login where username='" + us + "' and password = '"+ps+"'")
-        results = a.fetchall()
-        count = a.rowcount
-        print(results)
-        print(count)
-        if count > 0:
-            win0.destroy()
-            open_main()
-        else:
-            messagebox.showinfo("message","Wrong username or password")
-        conn.close()
-
-    global win0  
-    win0=Tk()
-    win0.overrideredirect(True)
-    win0.overrideredirect(False)
-    win0.attributes('-fullscreen',False)
-
-    win0.title("windows application")
-    win0.configure(bg='gray')
-    load = Image.open('icon\i8.png')
-    render = ImageTk.PhotoImage(load)
-    img = Label(win0, image=render)
-    img.image = render
-    img.place(x=0, y=0)
-
-    #top frame
-    topframe=Frame(win0,width=1800,height=900,bg="pink",bd=10,relief="raise")
-    topframe.pack(side=TOP)
-    lb=Label(topframe,font=('arial',45,'bold'),fg="pink",bg="brown",text='LIBRARY MANAGEMENT SYSTEM', width=30)
-    lb.grid(row=0,column=0)
-
-    #middle frame
-    mframe=Frame(win0,bg="brown",bd=10,relief='raise', padx=30, pady=100)
-    mframe.pack(padx=500,pady=40)
-
-    lbl1 = Label(mframe, text='User name',font=('arial',12,'bold'),fg="pink",bg="brown")
-    lbl1.grid(row=0, column=0,pady=10)
-    user=StringVar()
-    e1 = Entry(mframe,textvariable = user)
-    e1.grid(row=0, column=1, padx=10)
-
-    lbl2 = Label(mframe, text='Password',font=('arial',12,'bold'),fg="pink",bg="brown")
-    lbl2.grid(row=1, column=0, pady=10)
-    pswd=StringVar()
-    e2 = Entry(mframe,textvariable = pswd)
-    e2.grid(row=1, column=1, padx=10)
-
-    closemain = Button(mframe, font=('arial',12,'bold'), bg='brown',text='Close Main',fg="pink",command=win0.destroy)
-    closemain.grid(row=2, column=0, padx=10)
-
-    e3 = Button(mframe, text='Log in', font=('arial',12,'bold'),fg="pink",bg="brown",command=login)
-    e3.grid(row=2, column=1, padx=10)
-
-    win0.mainloop()
-
 
 open_main()
 #first()

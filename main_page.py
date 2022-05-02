@@ -481,23 +481,27 @@ def open_return():
 
 
 def open_book():
+    def reset():
+        e1.delete(0, 'end')
+        e2.delete(0, 'end')
+
     def add_book():
         bkname = booknm.get()
         bknum = booknum.get()
         conn = getc()
         try:
-            if bkname and bknum:
+            if not bknum.isdigit():
+                messagebox.showinfo("Info", "Enter number in Book number")
+            elif bkname and bknum:
                 a = conn.cursor()
                 a.execute("insert into books(bookname, bookno)values('" + bkname + "', " + bknum + ")")
                 conn.commit()
-                print('save')
+                reset()
                 messagebox.showinfo("Info", "Entry Successful")
             else:
                 messagebox.showinfo("Info", "Enter Some Values")
-
         except mysql.connector.errors.IntegrityError:
             messagebox.showerror("Error", "Duplicate Entry")
-            conn.close()
         except Exception:
             messagebox.showerror("Error", "Error")
         else:
@@ -544,56 +548,47 @@ def open_book():
 
 
 def open_details():
+    def reset():
+        l = [e1, e2, e3, e4, e5, e6, s1, s2, s3, s4]
+        for i in l:
+            i.config(text='')
+        r1.delete(0, 'end')
+        roll3.config(text="Submit", command=details)
+        r1.config(state="normal")
+
     def details():
         rollnum = rnum.get()
-        print(rollnum)
-        conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
-        a = conn.cursor()
-        a.execute("select * from student where rollno='" + rollnum + "'")
+        conn = getc()
+        try:
+            a = conn.cursor()
+            a.execute("select * from student where rollno='" + rollnum + "'")
+            ra = a.fetchall()
 
-        results = a.fetchall()
-        count = a.rowcount
+            a.execute("select * from issuebook where rollno='" + rollnum + "'")
+            rb = a.fetchall()
+            if ra:
+                ra = ra[0]
+                l = [e1, e2, e3, e4, e5, e6]
+                for i in range(6):
+                    l[i].config(text=ra[i])
 
-        print(results)
+                if rb:
+                    s1.config(text=rb[0][1])  # book 1
+                    s2.config(text=rb[0][4])
+                    if len(rb) > 1:
+                        s3.config(text=rb[1][1])
+                        s4.config(text=rb[1][4])
+                else:
+                    s1.config(text="No Book issued")
+                r1.config(state="disabled")
+                roll3.config(text="Reset", command=reset)
+            else:
+                messagebox.showerror("Error", "Student Not found")
+                reset()
+            conn.close()
 
-        print(count)
-
-        if count > 0:
-            for row in results:
-                rnum1.set(row[0])
-                sname.set(row[1])
-                fanm.set(row[2])
-                mtnm.set(row[3])
-                dateob.set(row[4])
-                bran.set(row[5])
-        else:
-            messagebox.showinfo("record not found")
-        conn.close()
-
-    def bookdetails():
-        rollnum = rnum.get()
-        print(rollnum)
-        conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
-        b = conn.cursor()
-        b.execute("select * from issuebook where rollno='" + rollnum + "'")
-        resultb = b.fetchall()
-        countb = b.rowcount
-        print(resultb)
-        print(countb)
-        if countb > 0:
-            for row in resultb:
-                booknm.set(row[1])
-                booknum.set(row[2])
-                dateofiss.set(row[3])
-                lstdate.set(row[4])
-
-        else:
-            messagebox.showinfo("record not found")
-        conn.close()
-
-    def details_and_bookdetails():
-        details()
-        bookdetails()
+        except Exception:
+            messagebox.showerror("Error", "Student Not found")
 
     win = Tk()
     win.state('zoomed')
@@ -612,6 +607,7 @@ def open_details():
 
     rframe = Frame(win, bg="brown", bd=10, relief='raised', padx=10, pady=10)
     rframe.pack(padx=5, pady=5)
+
     labelroll = Label(rframe, font=('arial', 14, 'bold'), bg='brown', text='Enter Roll Number :')
     labelroll.grid(row=0, column=0)
     rnum = StringVar()
@@ -619,77 +615,64 @@ def open_details():
     r1.grid(row=0, column=1, padx=10)
 
     roll3 = Button(rframe, text='Submit', font=('arial', 14, 'bold'), fg="white", bg="brown",
-                   command=details_and_bookdetails)
+                   command=details)
     roll3.grid(row=0, column=2, pady=10)
     # middle frame
 
     mframe = Frame(win, bg="brown", bd=10, relief='raised', padx=20, pady=10)
-    mframe.pack(padx=5, pady=10)
+    mframe.pack(padx=5, pady=10, ipadx=80)
+
     lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Roll Number :')
     lbl1.grid(row=1, column=0)
-    rnum1 = StringVar()
-    e1 = Entry(mframe, textvariable=rnum1)
+    e1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e1.grid(row=1, column=1, padx=10)
 
     lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Student Name :')
     lbl2.grid(row=2, column=0, pady=10)
-    sname = StringVar()
-    e2 = Entry(mframe, textvariable=sname)
+    e2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e2.grid(row=2, column=1, padx=10)
 
     lbl3 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Fathers Name :')
     lbl3.grid(row=3, column=0, pady=10)
 
-    fanm = StringVar()
-    e3 = Entry(mframe, textvariable=fanm)
+    e3 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e3.grid(row=3, column=1, padx=10)
 
     lbl4 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Mother Name :')
     lbl4.grid(row=4, column=0, pady=10)
-    mtnm = StringVar()
-    e4 = Entry(mframe, textvariable=mtnm)
+    e4 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e4.grid(row=4, column=1, padx=10)
 
     lbl5 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Date of Birth :')
     lbl5.grid(row=5, column=0, pady=10)
-    dateob = StringVar()
-    e5 = Entry(mframe, textvariable=dateob)
+    e5 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e5.grid(row=5, column=1, padx=10)
 
     lbl6 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Branch')
     lbl6.grid(row=6, column=0, pady=10)
-    bran = StringVar()
-    e6 = Entry(mframe, textvariable=bran)
+    e6 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     e6.grid(row=6, column=1, padx=10)
 
     sideframe = Frame(win, bg="brown", bd=10, relief='raised', padx=20, pady=10)
     sideframe.pack(padx=5, pady=10)
-    lbs1 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Name :')
-    lbs1.grid(row=7, column=0, pady=10)
-    booknm = StringVar()
-    s1 = Entry(mframe, textvariable=booknm)
+    lbs1 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Name and date :')
+    lbs1.grid(row=7, column=0, pady=10, columnspan=4)
+
+    s1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     s1.grid(row=8, column=0, padx=10)
 
-    lbs2 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Number :')
-    lbs2.grid(row=7, column=1, pady=10)
-    booknum = StringVar()
-    s2 = Entry(mframe, textvariable=booknum)
+    s2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     s2.grid(row=8, column=1, padx=10)
 
-    lbs3 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Date of Issue :')
-    lbs3.grid(row=7, column=2, pady=10)
-    dateofiss = StringVar()
-    s3 = Entry(mframe, textvariable=dateofiss)
+    s3 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     s3.grid(row=8, column=2, padx=10)
 
-    lbs4 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Last Date to return :')
-    lbs4.grid(row=7, column=3, pady=10)
-    lstdate = StringVar()
-    s4 = Entry(mframe, textvariable=lstdate)
+    s4 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
     s4.grid(row=8, column=3, padx=10)
 
     mframe = Frame(win, bg="brown", bd=10, relief='raised', padx=50, pady=30)
     mframe.pack(padx=50, pady=20)
+
     closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
     closemain.grid(row=2, column=1, padx=10)
 
@@ -699,31 +682,42 @@ def open_details():
 
 
 def open_delete():
+    def reset():
+        e3.config(text="Submit")
+        exitmain.config(text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
+        e1.config(state="normal")
+        e1.delete(0, 'end')
+        e2.config(text='')
+
     def delete():
         rollnum = rnum.get()
         conn = getc()
-        try:
+        #try:
+        if 1:
             a = conn.cursor()
             a.execute("select * from student where rollno='" + rollnum + "'")
             resultb = a.fetchall()
-            countb = a.rowcount
-            print(resultb)
-            print(countb)
-            if countb > 0:
-                a.execute("delete from student where rollno='" + rollnum + "'")
-                conn.commit()
-                # print('delete')
-                messagebox.showinfo("message", " deleted")
+            cn = True if e3['text'] == "Confirm" else False
+            if resultb :
+                e3.config(text="Confirm")
+                exitmain.config(text="Back", command=reset)
+                e1.config(state='disabled')
+                e2.config(text=resultb[0][1])
+                if cn:
+                    a.execute("delete from student where rollno='" + rollnum + "'")
+                    conn.commit()
+                    messagebox.showinfo("message", " deleted")
+                    reset()
             else:
                 messagebox.showinfo("message", "Student Not Found")
 
-        except:
+        '''except Exception:
             conn.rollback()
             # print('not delete')
             messagebox.showinfo("message", "Error")
 
         else:
-            conn.close()
+            conn.close()'''
 
     win = Tk()
     win.state('zoomed')
@@ -744,6 +738,11 @@ def open_delete():
     rnum = StringVar()
     e1 = Entry(mframe, textvariable=rnum)
     e1.grid(row=0, column=1, padx=10)
+
+    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Student Name :')
+    lbl2.grid(row=1, column=0, pady=10)
+    e2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='')
+    e2.grid(row=1, column=1, padx=10)
 
     exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
     exitmain.grid(row=2, column=0, padx=10)

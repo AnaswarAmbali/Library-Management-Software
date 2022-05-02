@@ -7,7 +7,7 @@ import datetime
 lh, rt, pd, da = "localhost", "root", "password", "data"
 
 
-def hover(button,x='green'):
+def hover(button, x='green'):
     button.bind("<Enter>", func=lambda e: button.config(bg=x))
     y = button["bg"]
     button.bind("<Leave>", func=lambda e: button.config(bg=y))
@@ -58,13 +58,13 @@ def first():
     lbl1 = Label(mframe, text='User name', font=('arial', 12, 'bold'), fg="pink", bg="brown")
     lbl1.grid(row=0, column=0, pady=10)
     user = StringVar()
-    e1 = Entry(mframe, textvariable=user)
+    e1 = Entry(mframe, textvariable=user, justify='center', )
     e1.grid(row=0, column=1, padx=10)
 
     lbl2 = Label(mframe, text='Password', font=('arial', 12, 'bold'), fg="pink", bg="brown")
     lbl2.grid(row=1, column=0, pady=10)
     pswd = StringVar()
-    e2 = Entry(mframe, textvariable=pswd)
+    e2 = Entry(mframe, textvariable=pswd, justify='center', show='*')
     e2.grid(row=1, column=1, padx=10)
 
     closemain = Button(mframe, font=('arial', 12, 'bold'), bg='brown', text='Close Main', fg="pink",
@@ -134,56 +134,99 @@ def open_main():
     win.mainloop()
 
 
-def open_return():
+def open_add():
+    def add_student():
+        rollnum = rnum.get()
+        stdname = sname.get()
+        faname = fanm.get()
+        mname = mtnm.get()
+        dobr = datebox.get()
+        brnch = bran.get()
 
-    def return_():
-        bknm = bknum.get()
         try:
             conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
             a = conn.cursor()
-            a.execute("select * from issuebook where bookno='" + bknm + "'")
-            results = a.fetchall()
-            print(results)
-            name = results[0]
-            if len(results) > 0:
-                a.execute("delete from issuebook where bookno='" + bknm + "'")
+            a.execute("select * from student where rollno='" + rollnum + "'")
+            x = a.fetchall()
+            if not len(x) and stdname and faname and mname and dobr and brnch:
+                a.execute(
+                    "insert into student (rollno, studname, fathername, mothername, dob, branch)values('" + rollnum + "',  '" + stdname + "',  '" + faname + "',  '" + mname + "',  '" + dobr + "',  '" + brnch + "')")
                 conn.commit()
-            else:
+                messagebox.showinfo("message", "Student saved successfully")
+                print('save')
+            elif len(x):
                 conn.rollback()
-                messagebox.showinfo("message", "Record Not Found")
+                messagebox.showinfo("message", "Duplicate Entry")
+            else:
+                messagebox.showinfo("message", "Please Enter Some values")
+
         except Exception:
-            messagebox.showinfo("message", "not delete")
+            print('Not Save')
+            messagebox.showinfo("message", "Error")
+
         else:
             conn.close()
 
     win = Tk()
     win.state('zoomed')
+    win.overrideredirect(False)
+    win.attributes('-fullscreen', False)
     win.title("Library Management")
     win.configure(bg='gray')
-
-    load = Image.open('icon\\i1.png')
+    load = Image.open('icon\\i6.png')
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
     img.place(x=0, y=0, relheight=1, relwidth=1)
 
     # middle frame
-    mframe = Frame(win, width=800, height=800, bg="brown", bd=10, relief='raised', padx=40, pady=30)
-    mframe.pack(padx=50, pady=70)
+    mframe = Frame(win, bg="brown", bd=10, relief='raised', padx=50, pady=30)
+    mframe.pack(padx=50, pady=50)
 
-    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Number :')
+    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Roll Number :')
     lbl1.grid(row=0, column=0)
-    bknum = StringVar()
-    e1 = Entry(mframe)
+    rnum = StringVar()
+    e1 = Entry(mframe, textvariable=rnum)
     e1.grid(row=0, column=1, padx=10)
 
-    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
-    exitmain.grid(row=3, column=0, padx=10)
-    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
-    closemain.grid(row=3, column=2, padx=10)
+    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Student Name :')
+    lbl2.grid(row=1, column=0, pady=10)
+    sname = StringVar()
+    e2 = Entry(mframe, textvariable=sname)
+    e2.grid(row=1, column=1, padx=10)
 
-    e3 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), fg="pink", bg="brown", command=return_)
-    e3.grid(row=3, column=1, pady=10)
+    lbl3 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Fathers Name :')
+    lbl3.grid(row=2, column=0, pady=10)
+
+    fanm = StringVar()
+    e3 = Entry(mframe, textvariable=fanm)
+    e3.grid(row=2, column=1, padx=10)
+
+    lbl4 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Mother Name :')
+    lbl4.grid(row=3, column=0, pady=10)
+    mtnm = StringVar()
+    e4 = Entry(mframe, textvariable=mtnm)
+    e4.grid(row=3, column=1, padx=10)
+
+    lbl5 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Date of Birth :')
+    lbl5.grid(row=4, column=0, pady=10)
+    datebox = StringVar()
+    e5 = Entry(mframe, textvariable=datebox)
+    e5.grid(row=4, column=1, padx=10)
+
+    lbl6 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Branch')
+    lbl6.grid(row=5, column=0, pady=10)
+    bran = StringVar()
+    e6 = Entry(mframe, textvariable=bran)
+    e6.grid(row=5, column=1, padx=10)
+
+    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
+    exitmain.grid(row=6, column=0, padx=10)
+    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
+    closemain.grid(row=6, column=2, padx=10)
+
+    e3 = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Add Student', fg="pink", command=add_student)
+    e3.grid(row=6, column=1, padx=10)
 
     win.mainloop()
 
@@ -191,7 +234,7 @@ def open_return():
 def open_issue():
     cn = False
     today = datetime.date.today()
-    ret = today+datetime.timedelta(days=14)
+    ret = today + datetime.timedelta(days=14)
     today, ret = today.isoformat(), ret.isoformat()
 
     def reset():
@@ -209,9 +252,8 @@ def open_issue():
 
         exitmain.config(text="GO TO Main", command=lambda: (win.destroy(), open_main()))
 
-
     def issue_book():
-
+        nonlocal cn
         rollnum = rnum.get()
         bknum = booknum.get()
         datofiss = dateofiss.get()
@@ -227,7 +269,12 @@ def open_issue():
 
                 a.execute("SELECT studname FROM student where rollno=" + rollnum + "")
                 sname = a.fetchall()
+
                 cn = True if e6['text'] == "Confirm" else False
+
+                a.execute("SELECT rollno FROM issuebook where rollno=" + rollnum + "")
+                a.fetchall()
+                c = a.rowcount
 
                 if not sname:
                     messagebox.showinfo("Error", "Student Not found")
@@ -235,7 +282,7 @@ def open_issue():
                 elif not bname:
                     messagebox.showinfo("Error", "Book Not found")
 
-                else:
+                elif c < 2:
                     sname, bname = sname[0][0], bname[0][0]
                     e2.config(text=bname)
                     e0.config(text=sname)
@@ -246,8 +293,8 @@ def open_issue():
                     e3.config(state='disabled')
 
                     exitmain.config(text="Back", command=reset)
-
-
+                else:
+                    messagebox.showinfo("Error", "2 books on hold")
 
                 if cn:
                     a.execute("insert into issuebook(rollno, bookno, issuedate, returndate, bookname)values("
@@ -265,7 +312,6 @@ def open_issue():
                 conn.close()
         else:
             messagebox.showinfo("message", "Please Enter Some values")
-
 
     win = Tk()
     win.state('zoomed')
@@ -329,13 +375,102 @@ def open_issue():
     e5.bind("<FocusOut>",
             lambda e: e5.insert(0, ret) if lstdate.get() == "" else None)
 
-    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
+    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink",
+                      command=lambda: (win.destroy(), open_main()))
     exitmain.grid(row=6, column=0, padx=10)
     closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
     closemain.grid(row=6, column=2, padx=10)
 
     e6 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), bg="brown", command=issue_book)
     e6.grid(row=6, column=1, pady=10)
+
+    win.mainloop()
+
+
+def open_return():
+
+    def reset():
+        e2.config(text='')
+        e1.config(state='normal')
+        g.config(text="GET", command=return_)
+        e3.config(state="disabled")
+        e3.config(bg='brown')
+        hover(e3, 'brown')
+
+    def return_():
+        bknm = bknum.get()
+        try:
+            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
+            a = conn.cursor()
+            bknm = '0' if bknm == '' else bknm
+            a.execute("select bookname from issuebook where bookno=" + bknm)
+            results = a.fetchall()
+
+            cn = True if g['text'] == "Back" else False
+
+            if len(results) > 0:
+                x = results[0][0]
+                e2.config(text=x)
+                e1.config(state='disabled')
+                g.config(text="Back", command=reset)
+                e3.config(state="normal")
+                hover(e3)
+
+            else:
+                messagebox.showinfo("message", "Record Not Found")
+
+            if cn:
+                a.execute("delete from issuebook where bookno='" + bknm + "'")
+                conn.commit()
+                messagebox.showinfo("Message", "Book returned")
+                reset()
+
+        except Exception:
+            messagebox.showinfo("message", "not delete")
+
+        else:
+            conn.close()
+
+    win = Tk()
+    win.state('zoomed')
+    win.title("Library Management")
+    win.configure(bg='gray')
+
+    load = Image.open('icon\\i1.png')
+    render = ImageTk.PhotoImage(load)
+    img = Label(win, image=render)
+    img.image = render
+    img.place(x=0, y=0, relheight=1, relwidth=1)
+
+    # middle frame
+    mframe = Frame(win, width=800, height=800, bg="brown", bd=10, relief='raised', padx=40, pady=30)
+    mframe.pack(padx=50, pady=70)
+
+    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Number :')
+    lbl1.grid(row=0, column=0, pady=10)
+    bknum = StringVar()
+    e1 = Entry(mframe, textvariable=bknum)
+    e1.grid(row=0, column=1, padx=10)
+
+    g = Button(mframe, text='GET', font=('arial', 14, 'bold'), fg="pink", bg="brown", command=return_)
+    g.grid(row=0, column=2, pady=10)
+
+    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg="brown", text='Book Name :')
+    lbl2.grid(row=1, column=0, pady=10)
+    e2 = Label(mframe, text=' ', font=('arial', 14, 'bold'), bg="brown")
+    e2.grid(row=1, column=1, padx=10)
+
+    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
+    exitmain.grid(row=2, column=0, padx=10)
+    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
+    closemain.grid(row=2, column=2, padx=10)
+
+    e3 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), fg="pink", bg="brown", command=return_, state='disabled')
+    e3.grid(row=2, column=1, pady=10)
+
+    hover(exitmain)
+    hover(g)
+    hover(closemain)
 
     win.mainloop()
 
@@ -391,7 +526,6 @@ def open_details():
     def details_and_bookdetails():
         details()
         bookdetails()
-
 
     win = Tk()
     win.state('zoomed')
@@ -521,8 +655,9 @@ def open_delete():
             conn.rollback()
             # print('not delete')
             messagebox.showinfo("message", "Error")
-        conn.close()
 
+        else:
+            conn.close()
 
     win = Tk()
     win.state('zoomed')
@@ -572,7 +707,6 @@ def open_book():
             print('Not Save')
             conn.close()
 
-
     win = Tk()
     win.state('zoomed')
     win.overrideredirect(False)
@@ -609,99 +743,6 @@ def open_book():
 
     e3 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), fg="white", bg="brown", command=add_book)
     e3.grid(row=2, column=1, pady=10)
-
-    win.mainloop()
-
-
-def open_add():
-    def add_student():
-        rollnum = rnum.get()
-        stdname = sname.get()
-        faname = fanm.get()
-        mname = mtnm.get()
-        dobr = datebox.get()
-        brnch = bran.get()
-        try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
-            a = conn.cursor()
-            a.execute("select * from student where rollno='" + rollnum + "'")
-            x = a.fetchall()
-            y = a.rowcount
-            if (y == 0):
-                a.execute(
-                    "insert into student (rollno, studname, fathername, mothername, dob, branch)values('" + rollnum + "',  '" + stdname + "',  '" + faname + "',  '" + mname + "',  '" + dobr + "',  '" + brnch + "')")
-                conn.commit()
-                messagebox.showinfo("message", "Student saved succesfully")
-                print('save')
-            else:
-                messagebox.showinfo("message", "Duplicate Entry")
-
-        except:
-            conn.rollback()
-            print('Not Save')
-            messagebox.showinfo("message", "Error")
-            conn.close()
-
-    win = Tk()
-    win.state('zoomed')
-    win.overrideredirect(False)
-    win.attributes('-fullscreen', False)
-    win.title("Library Management")
-    win.configure(bg='gray')
-    load = Image.open('icon\\i6.png')
-    render = ImageTk.PhotoImage(load)
-    img = Label(win, image=render)
-    img.image = render
-    img.place(x=0, y=0, relheight=1, relwidth=1)
-
-    # middle frame
-    mframe = Frame(win, bg="brown", bd=10, relief='raised', padx=50, pady=30)
-    mframe.pack(padx=50, pady=50)
-
-    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Roll Number :')
-    lbl1.grid(row=0, column=0)
-    rnum = StringVar()
-    e1 = Entry(mframe, textvariable=rnum)
-    e1.grid(row=0, column=1, padx=10)
-
-    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Student Name :')
-    lbl2.grid(row=1, column=0, pady=10)
-    sname = StringVar()
-    e2 = Entry(mframe, textvariable=sname)
-    e2.grid(row=1, column=1, padx=10)
-
-    lbl3 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Fathers Name :')
-    lbl3.grid(row=2, column=0, pady=10)
-
-    fanm = StringVar()
-    e3 = Entry(mframe, textvariable=fanm)
-    e3.grid(row=2, column=1, padx=10)
-
-    lbl4 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Mother Name :')
-    lbl4.grid(row=3, column=0, pady=10)
-    mtnm = StringVar()
-    e4 = Entry(mframe, textvariable=mtnm)
-    e4.grid(row=3, column=1, padx=10)
-
-    lbl5 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Date of Birth :')
-    lbl5.grid(row=4, column=0, pady=10)
-    datebox = StringVar()
-    e5 = Entry(mframe, textvariable=datebox)
-    e5.grid(row=4, column=1, padx=10)
-
-    lbl6 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Branch')
-    lbl6.grid(row=5, column=0, pady=10)
-    bran = StringVar()
-    e6 = Entry(mframe, textvariable=bran)
-    e6.grid(row=5, column=1, padx=10)
-
-    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
-    exitmain.grid(row=6, column=0, padx=10)
-    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
-    closemain.grid(row=6, column=2, padx=10)
-
-    e3 = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Add Student', fg="pink", command=add_student)
-    e3.grid(row=6, column=1, padx=10)
 
     win.mainloop()
 

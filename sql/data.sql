@@ -9,9 +9,9 @@ CREATE TABLE books (
 
 
 CREATE TABLE issuebook (
-  rollno int(20) PRIMARY KEY NOT NULL,
+  rollno int(20) NOT NULL,
   bookname varchar(20) NOT NULL,
-  bookno int(20) UNIQUE NOT NULL,
+  bookno int(20) PRIMARY KEY NOT NULL,
   issuedate varchar(20) NOT NULL,
   returndate varchar(20) NOT NULL
 );

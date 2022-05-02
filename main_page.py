@@ -7,6 +7,15 @@ import datetime
 lh, rt, pd, da = "localhost", "root", "password", "data"
 
 
+def getc():
+    try:
+        conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
+        return conn
+    except:
+        conn = mysql.connector.connect()
+        return conn
+
+
 def hover(button, x='green'):
     button.bind("<Enter>", func=lambda e: button.config(bg=x))
     y = button["bg"]
@@ -17,8 +26,8 @@ def first():
     def login():
         us = user.get()
         ps = pswd.get()
+        conn = getc()
         try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
             a = conn.cursor()
             a.execute("select * from login where username='" + us + "' and password = '" + ps + "'")
             results = a.fetchall()
@@ -27,7 +36,6 @@ def first():
                 open_main()
             else:
                 messagebox.showinfo("message", "Wrong username or password")
-
         except Exception:
             messagebox.showerror("Error", "Database Error")
         else:
@@ -142,9 +150,8 @@ def open_add():
         mname = mtnm.get()
         dobr = datebox.get()
         brnch = bran.get()
-
+        conn = getc()
         try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
             a = conn.cursor()
             a.execute("select * from student where rollno='" + rollnum + "'")
             x = a.fetchall()
@@ -155,7 +162,6 @@ def open_add():
                 messagebox.showinfo("message", "Student saved successfully")
                 print('save')
             elif len(x):
-                conn.rollback()
                 messagebox.showinfo("message", "Duplicate Entry")
             else:
                 messagebox.showinfo("message", "Please Enter Some values")
@@ -259,20 +265,20 @@ def open_issue():
         datofiss = dateofiss.get()
         lastdateret = lstdate.get()
 
-        if rollnum != '' or bknum != '':
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
+        if rollnum != '' and bknum != '':
+            conn = getc()
             try:
                 a = conn.cursor()
                 nonlocal e1, e3
                 a.execute("SELECT bookname FROM books where bookno='" + bknum + "'")
                 bname = a.fetchall()
 
-                a.execute("SELECT studname FROM student where rollno=" + rollnum + "")
+                a.execute("SELECT studname FROM student where rollno='" + rollnum + "'")
                 sname = a.fetchall()
 
                 cn = True if e6['text'] == "Confirm" else False
 
-                a.execute("SELECT rollno FROM issuebook where rollno=" + rollnum + "")
+                a.execute("SELECT rollno FROM issuebook where rollno='" + rollnum + "'")
                 a.fetchall()
                 c = a.rowcount
 
@@ -300,6 +306,7 @@ def open_issue():
                     a.execute("insert into issuebook(rollno, bookno, issuedate, returndate, bookname)values("
                               + rollnum + ", " + bknum + ", '" + datofiss + "', '" + lastdateret + "', '" + bname + "')")
                     conn.commit()
+                    reset()
                     messagebox.showinfo("message", "Book Issued")
 
             except mysql.connector.errors.IntegrityError:
@@ -315,8 +322,6 @@ def open_issue():
 
     win = Tk()
     win.state('zoomed')
-    win.overrideredirect(False)
-    win.attributes('-fullscreen', False)
     win.title("Library Management")
     win.configure(bg='gray')
     load = Image.open('icon\\i2.png')
@@ -399,8 +404,8 @@ def open_return():
 
     def return_():
         bknm = bknum.get()
+        conn = getc()
         try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
             a = conn.cursor()
             bknm = '0' if bknm == '' else bknm
             a.execute("select bookname from issuebook where bookno=" + bknm)
@@ -475,6 +480,69 @@ def open_return():
     win.mainloop()
 
 
+def open_book():
+    def add_book():
+        bkname = booknm.get()
+        bknum = booknum.get()
+        conn = getc()
+        try:
+            if bkname and bknum:
+                a = conn.cursor()
+                a.execute("insert into books(bookname, bookno)values('" + bkname + "', " + bknum + ")")
+                conn.commit()
+                print('save')
+                messagebox.showinfo("Info", "Entry Successful")
+            else:
+                messagebox.showinfo("Info", "Enter Some Values")
+
+        except mysql.connector.errors.IntegrityError:
+            messagebox.showerror("Error", "Duplicate Entry")
+            conn.close()
+        except Exception:
+            messagebox.showerror("Error", "Error")
+        else:
+            conn.close()
+
+    win = Tk()
+    win.state('zoomed')
+    win.overrideredirect(False)
+    win.attributes('-fullscreen', False)
+
+    win.title("Library Management")
+    win.configure(bg='gray')
+    load = Image.open('icon\\i5.png')
+    render = ImageTk.PhotoImage(load)
+    img = Label(win, image=render)
+    img.image = render
+    img.place(x=0, y=0, relheight=1, relwidth=1)
+
+    # middle frame
+    mframe = Frame(win, width=800, height=800, bg="brown", bd=10, relief='raised', padx=80)
+    mframe.pack(padx=50, pady=200)
+
+    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Book Name :')
+    lbl1.grid(row=0, column=0)
+    booknm = StringVar()
+    e1 = Entry(mframe, textvariable=booknm)
+    e1.grid(row=0, column=1, padx=10, pady=10)
+
+    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Book Number :')
+    lbl2.grid(row=1, column=0, pady=10)
+    booknum = StringVar()
+    e2 = Entry(mframe, textvariable=booknum)
+    e2.grid(row=1, column=1, padx=10)
+
+    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
+    exitmain.grid(row=2, column=0, padx=10)
+    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
+    closemain.grid(row=2, column=2, padx=10)
+
+    e3 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), fg="white", bg="brown", command=add_book)
+    e3.grid(row=2, column=1, pady=10)
+
+    win.mainloop()
+
+
 def open_details():
     def details():
         rollnum = rnum.get()
@@ -529,8 +597,6 @@ def open_details():
 
     win = Tk()
     win.state('zoomed')
-    win.overrideredirect(False)
-    win.attributes('-fullscreen', False)
     win.title("Library Management")
     win.configure(bg='gray')
     load = Image.open('icon\\i3.png')
@@ -635,8 +701,8 @@ def open_details():
 def open_delete():
     def delete():
         rollnum = rnum.get()
+        conn = getc()
         try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
             a = conn.cursor()
             a.execute("select * from student where rollno='" + rollnum + "'")
             resultb = a.fetchall()
@@ -661,9 +727,6 @@ def open_delete():
 
     win = Tk()
     win.state('zoomed')
-    win.overrideredirect(False)
-    win.attributes('-fullscreen', False)
-
     win.title("Library Management")
     win.configure(bg='gray')
     load = Image.open('icon\\i4.png')
@@ -687,61 +750,6 @@ def open_delete():
     closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
     closemain.grid(row=2, column=2, padx=10)
     e3 = Button(mframe, text='Delete', font=('arial', 14, 'bold'), fg="pink", bg="brown", command=delete)
-    e3.grid(row=2, column=1, pady=10)
-
-    win.mainloop()
-
-
-def open_book():
-    def add_book():
-        bkname = booknm.get()
-        bknum = booknum.get()
-        try:
-            conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
-            a = conn.cursor()
-            a.execute("insert into books(bookname, bookno)values('" + bkname + "', '" + bknum + "')")
-            conn.commit()
-            print('save')
-        except:
-            conn.rollback()
-            print('Not Save')
-            conn.close()
-
-    win = Tk()
-    win.state('zoomed')
-    win.overrideredirect(False)
-    win.attributes('-fullscreen', False)
-
-    win.title("Library Management")
-    win.configure(bg='gray')
-    load = Image.open('icon\\i5.png')
-    render = ImageTk.PhotoImage(load)
-    img = Label(win, image=render)
-    img.image = render
-    img.place(x=0, y=0, relheight=1, relwidth=1)
-
-    # middle frame
-    mframe = Frame(win, width=800, height=800, bg="brown", bd=10, relief='raised', padx=80)
-    mframe.pack(padx=50, pady=200)
-
-    lbl1 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Book Name :')
-    lbl1.grid(row=0, column=0)
-    booknm = StringVar()
-    e1 = Entry(mframe, textvariable=booknm)
-    e1.grid(row=0, column=1, padx=10, pady=10)
-
-    lbl2 = Label(mframe, font=('arial', 14, 'bold'), bg='brown', text='Book Number :')
-    lbl2.grid(row=1, column=0, pady=10)
-    booknum = StringVar()
-    e2 = Entry(mframe, textvariable=booknum)
-    e2.grid(row=1, column=1, padx=10)
-
-    exitmain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='GO TO Main', fg="pink", command=lambda: (win.destroy(), open_main()))
-    exitmain.grid(row=2, column=0, padx=10)
-    closemain = Button(mframe, font=('arial', 14, 'bold'), bg='brown', text='Close', fg="pink", command=win.destroy)
-    closemain.grid(row=2, column=2, padx=10)
-
-    e3 = Button(mframe, text='Submit', font=('arial', 14, 'bold'), fg="white", bg="brown", command=add_book)
     e3.grid(row=2, column=1, pady=10)
 
     win.mainloop()

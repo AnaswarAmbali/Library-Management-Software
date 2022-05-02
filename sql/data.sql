@@ -4,7 +4,7 @@ USE data;
 
 CREATE TABLE books (
   bookname varchar(20) NOT NULL,
-  bookno varchar(20) PRIMARY KEY NOT NULL
+  bookno int(20) PRIMARY KEY NOT NULL
 );
 
 
@@ -32,7 +32,6 @@ CREATE TABLE student (
   mothername varchar(20) NOT NULL,
   dob varchar(20) NOT NULL,
   branch varchar(20) NOT NULL,
-  bk int(2) NOT NULL
 ) ;
 
 CREATE TABLE history (

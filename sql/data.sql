@@ -31,7 +31,7 @@ CREATE TABLE student (
   fathername varchar(20) NOT NULL,
   mothername varchar(20) NOT NULL,
   dob varchar(20) NOT NULL,
-  branch varchar(20) NOT NULL,
+  branch varchar(20) NOT NULL
 ) ;
 
 CREATE TABLE history (
@@ -39,5 +39,5 @@ CREATE TABLE history (
   rollno int(20) PRIMARY KEY NOT NULL,
   issuedate varchar(20) NOT NULL,
   returnddate varchar(20) NOT NULL
-};
+);
 

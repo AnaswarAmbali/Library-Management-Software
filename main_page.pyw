@@ -30,7 +30,7 @@ def first():
         conn = getc()
         try:
             a = conn.cursor()
-            a.execute("select * from login where username='" + us + "' and password = '" + ps + "'")
+            a.execute(f"select * from login where username='{us}' and password = '{ps}'")
             results = a.fetchall()
             if len(results) > 0:
                 win.destroy()
@@ -159,11 +159,11 @@ def open_add():
         conn = getc()
         try:
             a = conn.cursor()
-            a.execute("select * from student where rollno='" + rollnum + "'")
+            a.execute(f"select * from student where rollno='{rollnum}'")
             x = a.fetchall()
             if not len(x) and stdname and faname and mname and dobr and brnch:
                 a.execute(
-                    "insert into student (rollno, studname, fathername, mothername, dob, branch)values('" + rollnum + "',  '" + stdname + "',  '" + faname + "',  '" + mname + "',  '" + dobr + "',  '" + brnch + "')")
+                    f"insert into student (rollno, studname, fathername, mothername, dob, branch)values('{rollnum}', '{stdname}', '{faname}', '{mname}', '{dobr}', '{brnch}')")
                 conn.commit()
                 messagebox.showinfo("message", "Student saved successfully")
             elif len(x):
@@ -275,15 +275,15 @@ def open_issue():
             try:
                 a = conn.cursor()
                 nonlocal e1, e3
-                a.execute("SELECT bookname FROM books where bookno='" + bknum + "'")
+                a.execute(f"SELECT bookname FROM books where bookno='{bknum}'")
                 bname = a.fetchall()
 
-                a.execute("SELECT studname FROM student where rollno='" + rollnum + "'")
+                a.execute(f"SELECT studname FROM student where rollno='{rollnum}'")
                 sname = a.fetchall()
 
                 cn = True if e6['text'] == "Confirm" else False
 
-                a.execute("SELECT rollno FROM issuebook where rollno='" + rollnum + "'")
+                a.execute(f"SELECT rollno FROM issuebook where rollno='{rollnum}'")
                 a.fetchall()
                 c = a.rowcount
 
@@ -308,8 +308,8 @@ def open_issue():
                     messagebox.showinfo("Error", "2 books on hold")
 
                 if cn:
-                    a.execute("insert into issuebook(rollno, bookno, issuedate, returndate, bookname)values("
-                              + rollnum + ", " + bknum + ", '" + datofiss + "', '" + lastdateret + "', '" + bname + "')")
+                    a.execute(f"""insert into issuebook(rollno, bookno, issuedate, returndate, bookname)values(
+                              {rollnum}, {bknum}, '{datofiss}', '{lastdateret}', '{bname}')""")
                     conn.commit()
                     reset()
                     messagebox.showinfo("message", "Book Issued")
@@ -412,7 +412,7 @@ def open_return():
         try:
             a = conn.cursor()
             bknm = '0' if bknm == '' else bknm
-            a.execute("select bookname from issuebook where bookno=" + bknm)
+            a.execute(f"select bookname from issuebook where bookno={bknm}")
             results = a.fetchall()
 
             cn = True if g['text'] == "Back" else False
@@ -429,7 +429,7 @@ def open_return():
                 messagebox.showinfo("message", "Record Not Found")
 
             if cn:
-                a.execute("delete from issuebook where bookno='" + bknm + "'")
+                a.execute(f"delete from issuebook where bookno={bknm}")
                 conn.commit()
                 messagebox.showinfo("Message", "Book returned")
                 reset()
@@ -500,7 +500,7 @@ def open_book():
                 messagebox.showinfo("Info", "Enter number in Book number")
             elif bkname and bknum:
                 a = conn.cursor()
-                a.execute("insert into books(bookname, bookno)values('" + bkname + "', " + bknum + ")")
+                a.execute(f"insert into books(bookname, bookno)values('{bkname}', {bknum})")
                 conn.commit()
                 reset()
                 messagebox.showinfo("Info", "Entry Successful")
@@ -568,10 +568,10 @@ def open_details():
         conn = getc()
         try:
             a = conn.cursor()
-            a.execute("select * from student where rollno='" + rollnum + "'")
+            a.execute(f"select * from student where rollno={rollnum}")
             ra = a.fetchall()
 
-            a.execute("select * from issuebook where rollno='" + rollnum + "'")
+            a.execute(f"select * from issuebook where rollno={rollnum}")
             rb = a.fetchall()
             if ra:
                 ra = ra[0]
@@ -702,7 +702,7 @@ def open_delete():
         conn = getc()
         try:
             a = conn.cursor()
-            a.execute("select * from student where rollno='" + rollnum + "'")
+            a.execute(f"select * from student where rollno={rollnum}")
             result = a.fetchall()
             cn = True if e3['text'] == "Confirm" else False
             if result:
@@ -711,7 +711,7 @@ def open_delete():
                 e1.config(state='disabled')
                 e2.config(text=result[0][1])
                 if cn:
-                    a.execute("delete from student where rollno='" + rollnum + "'")
+                    a.execute(f"delete from student where rollno={rollnum}")
                     conn.commit()
                     messagebox.showinfo("message", " deleted")
                     reset()

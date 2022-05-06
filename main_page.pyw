@@ -1,6 +1,14 @@
 lh, rt, pd, da = "localhost", "root", "password", "Library"
 
 
+def initimg():
+    global image
+    image=[]
+    for i in [images.i1, images.i2, images.i3, images.i4, images.i5, images.i6, images.i7, images.i8]:
+        byte_data = base64.b64decode(i)
+        image_data = BytesIO(byte_data)
+        image.append(Image.open(image_data))
+    
 def getc():
     try:
         conn = mysql.connector.connect(host=lh, user=rt, password=pd, db=da)
@@ -47,8 +55,8 @@ def first():
     win.state('zoomed')
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i8.png')
-
+    #load = Image.open('icon\\i8.png')
+    load = image[0]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -93,7 +101,7 @@ def open_main():
     win = Tk()
     win.state('zoomed')
     win.title("Library Management")
-    load = Image.open('icon\\i7.png')
+    load = image[1]
     win.configure(bg='gray')
 
     render = ImageTk.PhotoImage(load)
@@ -183,7 +191,7 @@ def open_add():
     win.attributes('-fullscreen', False)
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i6.png')
+    load = image[2]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -329,7 +337,7 @@ def open_issue():
     win.state('zoomed')
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i2.png')
+    load = image[3]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -445,7 +453,7 @@ def open_return():
     win.title("Library Management")
     win.configure(bg='gray')
 
-    load = Image.open('icon\\i1.png')
+    load = image[4]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -520,7 +528,7 @@ def open_book():
 
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i5.png')
+    load = image[5]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -601,7 +609,7 @@ def open_details():
     win.state('zoomed')
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i3.png')
+    load = image[6]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -729,7 +737,7 @@ def open_delete():
     win.state('zoomed')
     win.title("Library Management")
     win.configure(bg='gray')
-    load = Image.open('icon\\i4.png')
+    load = image[7]
     render = ImageTk.PhotoImage(load)
     img = Label(win, image=render)
     img.image = render
@@ -768,7 +776,11 @@ try:
     import mysql.connector
     import datetime
     import tablecreation as t
+    import base64
+    from io import BytesIO
+    import images
 except ModuleNotFoundError:
     messagebox.showinfo("message", "Please Install all packages")
 else:
+    initimg()
     first()

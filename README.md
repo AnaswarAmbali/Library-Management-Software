@@ -15,4 +15,4 @@ Library Management System written in Python, Tkinter and MySQL
 
 ### Still under Development
 - A program is never less than 90% complete and never more than 95% complete
-- Excutable version is available [**here](https://github.com/anaswarambali/Library-Management-Software-exe)
+- Excutable version is available **[here](https://github.com/anaswarambali/Library-Management-Software-exe)**
